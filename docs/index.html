@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leads Harvest — Install</title>
+  <meta name="description" content="Extract local business contact data from Google Maps. Install the Leads Harvest Chrome extension." />
+  <style>
+    :root {
+      --bg: #0f1020;
+      --surface: #1a1b2e;
+      --surface-2: #23243a;
+      --border: #34354f;
+      --text: #f3f4f6;
+      --muted: #a1a3bd;
+      --accent-from: #6366f1;
+      --accent-to: #8b5cf6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 50% -10%, #1c1d36 0%, var(--bg) 60%);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 820px; margin: 0 auto; padding: 0 20px; }
+
+    header.hero { text-align: center; padding: 80px 0 48px; }
+    .logo {
+      display: inline-flex; align-items: center; gap: 12px;
+      margin-bottom: 24px;
+    }
+    .logo-dot {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+      box-shadow: 0 0 24px rgba(124, 92, 246, 0.6);
+    }
+    .logo-text { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+
+    h1 {
+      font-size: 44px; line-height: 1.15; font-weight: 800;
+      letter-spacing: -0.02em; margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff 30%, #c7c9f5);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .tagline { font-size: 18px; color: var(--muted); max-width: 620px; margin: 0 auto 32px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 15px 30px; border-radius: 12px; font-size: 16px; font-weight: 700;
+      text-decoration: none; transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+      color: #fff; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(99, 102, 241, 0.5); }
+    .btn-sub { display: block; margin-top: 12px; font-size: 13px; color: var(--muted); }
+
+    section { margin: 56px 0; }
+    h2 { font-size: 24px; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.01em; }
+
+    .steps { counter-reset: step; list-style: none; display: grid; gap: 14px; }
+    .steps li {
+      counter-increment: step;
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px 18px 62px;
+    }
+    .steps li::before {
+      content: counter(step);
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      width: 30px; height: 30px; border-radius: 50%;
+      display: grid; place-items: center;
+      font-weight: 700; font-size: 14px; color: #fff;
+      background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+    }
+    code {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 2px 7px; font-size: 13px;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .feature {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px;
+    }
+    .feature h3 { font-size: 16px; margin-bottom: 6px; }
+    .feature p { font-size: 14px; color: var(--muted); }
+
+    .note {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(124, 92, 246, 0.35);
+      border-radius: 12px; padding: 16px 20px; font-size: 14px; color: #d6d8f7;
+    }
+
+    footer {
+      text-align: center; padding: 40px 0 60px; color: var(--muted); font-size: 13px;
+      border-top: 1px solid var(--border); margin-top: 64px;
+    }
+    footer a { color: #a5b4fc; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 560px) { h1 { font-size: 34px; } header.hero { padding: 56px 0 36px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="logo">
+        <span class="logo-dot"></span>
+        <span class="logo-text">Leads Harvest</span>
+      </div>
+      <h1>Turn Google Maps into a lead list</h1>
+      <p class="tagline">
+        Extract local-business contacts — name, phone, website, email, address, hours,
+        ratings, and social profiles — and export to CSV or JSON in a couple of clicks.
+      </p>
+      <a class="btn btn-primary" href="https://github.com/abdulMalik/leads-harvest/releases/latest">
+        ⬇ Download the latest release
+      </a>
+      <span class="btn-sub">Free Chrome / Edge / Brave extension · manual install (steps below)</span>
+    </header>
+
+    <section>
+      <h2>Install in 6 steps</h2>
+      <ol class="steps">
+        <li>On the <a href="https://github.com/abdulMalik/leads-harvest/releases/latest" style="color:#a5b4fc">latest release</a> page, download <code>leads-harvest-*.zip</code>.</li>
+        <li><strong>Unzip</strong> it to a folder you'll keep — don't delete it afterward; Chrome loads the extension from this folder.</li>
+        <li>Open <code>chrome://extensions</code> (or <code>edge://extensions</code>).</li>
+        <li>Turn on <strong>Developer mode</strong> (top-right toggle).</li>
+        <li>Click <strong>Load unpacked</strong> and select the unzipped folder.</li>
+        <li>Pin the Leads Harvest icon, open <a href="https://www.google.com/maps" style="color:#a5b4fc">Google Maps</a>, search, and click <strong>Start Harvesting</strong>.</li>
+      </ol>
+    </section>
+
+    <section>
+      <div class="note">
+        <strong>Why a manual install?</strong> Leads Harvest is distributed off the Chrome Web Store, so you load it
+        yourself via Developer mode. To update later, download the newer zip, unzip over the old folder, and click the
+        reload icon on the extension card.
+      </div>
+    </section>
+
+    <section>
+      <h2>What it captures</h2>
+      <div class="features">
+        <div class="feature"><h3>Contact details</h3><p>Phone, website, and email (discovered from each business's own site).</p></div>
+        <div class="feature"><h3>Social profiles</h3><p>Facebook, Instagram, X, LinkedIn, YouTube, and TikTok.</p></div>
+        <div class="feature"><h3>Business context</h3><p>Category, rating, review count, address, and full per-day hours.</p></div>
+        <div class="feature"><h3>Clean export</h3><p>CSV or JSON in a sales-priority column order, with de-duplicated rows.</p></div>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        <a href="https://github.com/abdulMalik/leads-harvest">Source on GitHub</a> ·
+        <a href="https://github.com/abdulMalik/leads-harvest/blob/main/PRIVACY.md">Privacy Policy</a> ·
+        <a href="https://github.com/abdulMalik/leads-harvest/releases/latest">Releases</a>
+      </p>
+      <p style="margin-top:8px">Found a bug or want a feature? Use the form inside the extension popup.</p>
+    </footer>
+  </div>
+</body>
+</html>
