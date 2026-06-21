@@ -1,0 +1,62 @@
+ <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Leads Harvest</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo">
+        <span class="logo-dot"></span>
+        <span class="logo-text">Leads Harvest</span>
+      </div>
+    </header>
+
+    <section class="counter-card">
+      <div id="counterLabel" class="counter-label">Free Quota Used</div>
+      <div class="counter-value">
+        <span id="leadCount">0</span>
+        <span id="leadLimit" class="counter-limit">/ 50</span>
+      </div>
+      <div class="progress">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+    </section>
+
+    <div id="harvestProgress" class="harvest-progress hidden">
+      <div id="harvestProgressBar" class="harvest-progress-bar"></div>
+      <span id="harvestProgressLabel" class="harvest-progress-label">Harvesting…</span>
+    </div>
+    <p id="harvestTip" class="tip hidden">Keep this Maps tab in front — Chrome slows background tabs.</p>
+
+    <div id="status" class="status">Open Google Maps and search to begin.</div>
+
+    <div id="warningBanner" class="warning hidden">
+      Selectors may be outdated. Using fallback extractor.
+    </div>
+
+    <div id="limitBanner" class="limit-banner hidden">
+      <strong>Free limit reached.</strong>
+      <p>You've used your lifetime quota of 50 leads.</p>
+    </div>
+
+    <div class="actions">
+      <button id="startBtn" class="btn btn-primary">Start Harvesting</button>
+      <button id="stopBtn" class="btn btn-danger" disabled>Stop</button>
+    </div>
+
+    <div class="export-row">
+      <button id="exportBtn" class="btn btn-secondary" disabled>Export to CSV</button>
+      <button id="exportJsonBtn" class="btn btn-secondary" disabled>Export to JSON</button>
+    </div>
+
+    <button id="clearBtn" class="btn btn-ghost">Clear Saved Leads</button>
+
+    <footer class="footer">
+      <span id="lastUpdated"></span>
+    </footer>
+
+    <script src="popup.js"></script>
+  </body>
+  </html>

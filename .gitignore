@@ -1,0 +1,12 @@
+# Build artifacts
+*.zip
+
+# Local Claude Code settings
+.claude/
+
+# Private notes (business/payment) — keep out of public repo
+NOTES.md
+
+# OS / editor
+.DS_Store
+*.swp

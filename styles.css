@@ -1,0 +1,210 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+    --text: #111827;
+    --muted: #6b7280;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --danger: #ef4444;
+    --danger-hover: #dc2626;
+    --success: #16a34a;
+    --warning: #f59e0b;
+    --accent-from: #6366f1;
+    --accent-to: #8b5cf6;
+  }
+
+  body {
+    width: 340px;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 16px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo-dot {
+    width: 10px; height: 10px;
+    background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+    border-radius: 50%;
+  }
+  .logo-text { font-weight: 700; font-size: 15px; }
+
+  .counter-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .counter-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .counter-value {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .counter-limit { font-size: 16px; color: var(--muted); font-weight: 500; }
+
+  .progress {
+    height: 4px;
+    background: #f3f4f6;
+    border-radius: 2px;
+    margin-top: 12px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary), var(--accent-to));
+    transition: width 0.3s ease;
+  }
+
+  .harvest-progress {
+    position: relative;
+    height: 24px;
+    background: #f3f4f6;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .harvest-progress-bar {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary), var(--accent-to));
+    transition: width 0.3s ease;
+  }
+  .harvest-progress-label {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.02em;
+    mix-blend-mode: difference;
+    color: #fff;
+  }
+
+  .tip {
+    font-size: 11px;
+    color: var(--warning);
+    text-align: center;
+    margin: -4px 0 10px 0;
+  }
+
+  .status {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 12px;
+    min-height: 16px;
+  }
+  .status.active { color: var(--success); font-weight: 500; }
+  .status.error { color: var(--danger); }
+
+  .warning {
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    color: #92400e;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+
+  .limit-banner {
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    color: #92400e;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 12px;
+  }
+  .limit-banner strong { display: block; margin-bottom: 2px; }
+  .limit-banner p { font-size: 11px; color: #92400e; }
+
+  .hidden { display: none !important; }
+
+  .actions { display: flex; gap: 8px; margin-bottom: 8px; }
+
+  .btn {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: opacity 0.15s, background 0.15s, transform 0.05s;
+    font-family: inherit;
+  }
+  .btn:not(:disabled):active { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:not(:disabled):hover { background: var(--primary-hover); }
+
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:not(:disabled):hover { background: var(--danger-hover); }
+
+  .btn-secondary {
+    width: 100%;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .btn-secondary:not(:disabled):hover { background: #f3f4f6; }
+
+  .export-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .export-row .btn-secondary {
+    width: auto;
+    margin-bottom: 0;
+    flex: 1;
+  }
+
+  .btn-ghost {
+    width: 100%;
+    background: var(--surface);
+    color: var(--danger);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    padding: 10px 12px;
+    font-weight: 500;
+  }
+  .btn-ghost:not(:disabled):hover {
+    background: #fef2f2;
+    border-color: #fecaca;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
