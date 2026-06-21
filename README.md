@@ -19,7 +19,7 @@ A Chrome extension that extracts local-business contact data from Google Maps se
 
 ## Install (Chrome / Edge / Brave)
 
-1. Download **`leads-harvest-v0.3.0.zip`** from the [latest release](../../releases/latest).
+1. Download the latest **`leads-harvest-*.zip`** from the [latest release](../../releases/latest).
 2. **Unzip** it to a folder you'll keep — *don't delete it afterward*; Chrome loads the extension from this folder.
 3. Open `chrome://extensions` (or `edge://extensions`).
 4. Turn on **Developer mode** (top-right toggle).
