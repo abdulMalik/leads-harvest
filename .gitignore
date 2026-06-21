@@ -1,5 +1,6 @@
 # Build artifacts
 *.zip
+dist/
 
 # Local Claude Code settings
 .claude/

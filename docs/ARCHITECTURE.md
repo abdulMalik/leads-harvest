@@ -31,7 +31,8 @@ There is no backend. All data lives in `chrome.storage` on the user's device.
 | `content.js` | Content script (Maps tab) | Scrolls results, extracts cards, opens detail panels, de-dupes, writes leads to storage. |
 | `background.js` | Service worker | Email/social enrichment (two phases), free-quota accounting. |
 | `social_classifier.js` | Shared | Classifies/normalizes social URLs. Loaded in all three contexts + Node tests. |
-| `release.sh` | Dev tool | Builds the zip, tags, and publishes a GitHub release. |
+| `release.sh` | Dev tool | Builds the Chrome zip, tags, and publishes a GitHub release. |
+| `build-firefox.sh` | Dev tool | Generates a Firefox manifest (event-page background + gecko id) from `manifest.json` and zips a Firefox build. |
 
 ### `social_classifier.js` is shared three ways
 - Content script: listed in `manifest.content_scripts.js`.
@@ -107,8 +108,18 @@ Enrichment never erases existing data: `lead.field = found || lead.field || ""`.
 
 The popup's Request a Feature / Report a Bug form POSTs `{ name, email, phone, message }` to **Web3Forms** (`api.web3forms.com`), which emails the submission to the support address. The access key is a public client key (send-only to the verified inbox). This is the only outbound call that leaves the user's machine with user-entered data — see [PRIVACY.md](../PRIVACY.md).
 
+## Cross-browser (Chrome + Firefox)
+
+The same source builds for both. The only differences are applied at build time by `build-firefox.sh`:
+
+- **Background model:** Chrome uses `background.service_worker`; Firefox MV3 uses an event page (`background.scripts`). The Firefox manifest lists `["social_classifier.js", "background.js"]` so the classifier's globals exist before `background.js` runs.
+- **`importScripts`:** worker-only, so `background.js` guards it with `if (typeof importScripts === "function")`. Chrome loads the classifier at runtime; Firefox loads it via the manifest above.
+- **Add-on id:** Firefox requires `browser_specific_settings.gecko.id` for signing — injected by the build script.
+
+Everything else (the `chrome.*` API calls, promise usage, `scripting.executeScript` with `func`, hidden tabs) works on both modern engines. `chrome.tabs.update({autoDiscardable})` is Chrome-only but is wrapped in try/catch, so Firefox safely ignores it.
+
 ## Conventions
 
 - All log lines are prefixed `[Leads Harvest]` for easy filtering in DevTools.
-- New runtime files must be added to the `FILES=(…)` list in `release.sh` so they're packaged.
+- New runtime files must be added to the `FILES=(…)` list in **both** `release.sh` and `build-firefox.sh` so they're packaged for each browser.
 - `social_classifier.js`'s platform path-blocklists (e.g. Instagram `/p`, `/reel`) prevent post/share URLs from being mistaken for profile handles — extend these when adding platforms.

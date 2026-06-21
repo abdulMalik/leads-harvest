@@ -31,6 +31,9 @@ A Chrome extension that extracts local-business contact data from Google Maps se
 ### Updating to a new version
 Download the newer zip, unzip it (overwrite the old folder), then click the **reload** icon on the extension card at `chrome://extensions`.
 
+### Firefox
+A Firefox build is produced from the same source via `./build-firefox.sh` (output: `leads-harvest-firefox-*.zip`). To get a one-click, auto-updating install, that zip is uploaded to [addons.mozilla.org](https://addons.mozilla.org/developers/) for signing. For local testing without signing: Firefox → `about:debugging` → **This Firefox** → **Load Temporary Add-on** → pick `dist/firefox/manifest.json`.
+
 ---
 
 ## Usage

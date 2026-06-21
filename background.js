@@ -1,4 +1,10 @@
- importScripts("social_classifier.js");
+ // Chrome's MV3 service worker loads the shared classifier via importScripts.
+  // Firefox MV3 runs the background as an event page (no importScripts), where
+  // social_classifier.js is loaded ahead of this file via manifest
+  // background.scripts instead — so guard the worker-only call.
+  if (typeof importScripts === "function") {
+    importScripts("social_classifier.js");
+  }
 
   chrome.runtime.onInstalled.addListener(() => {
     chrome.storage.local.set({
