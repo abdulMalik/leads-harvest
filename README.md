@@ -3,6 +3,8 @@
 A Chrome extension that extracts local-business contact data from Google Maps search results — name, phone, website, email, address, hours, ratings, and social profiles — and exports it to CSV or JSON for sales prospecting and outreach.
 
 > **Not on the Chrome Web Store.** Install it manually from the latest release (instructions below).
+>
+> 📦 **Install page for end users:** https://abdulmalik.github.io/leads-harvest/
 
 ---
 
