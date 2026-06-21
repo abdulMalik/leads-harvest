@@ -53,7 +53,21 @@
 
     <button id="clearBtn" class="btn btn-ghost">Clear Saved Leads</button>
 
+    <div id="feedbackForm" class="feedback-form hidden">
+      <div class="feedback-title">Request a Feature / Report a Bug</div>
+      <input id="fbName" class="feedback-input" type="text" placeholder="Name" autocomplete="name" />
+      <input id="fbEmail" class="feedback-input" type="email" placeholder="Email" autocomplete="email" />
+      <input id="fbPhone" class="feedback-input" type="tel" placeholder="Phone (optional)" autocomplete="tel" />
+      <textarea id="fbMessage" class="feedback-input" rows="3" placeholder="Tell us what you'd like to see, or what went wrong…"></textarea>
+      <div id="fbStatus" class="feedback-status hidden"></div>
+      <div class="feedback-actions">
+        <button id="fbSendBtn" class="btn btn-primary">Send</button>
+        <button id="fbCancelBtn" class="btn btn-ghost">Cancel</button>
+      </div>
+    </div>
+
     <footer class="footer">
+      <a id="feedbackToggle" class="feedback-link" href="#">Request a Feature / Report a Bug</a>
       <span id="lastUpdated"></span>
     </footer>
 

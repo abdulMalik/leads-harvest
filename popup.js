@@ -1,5 +1,11 @@
  const FREE_LIMIT = 50;
 
+  // Web3Forms access key — get a free one at https://web3forms.com
+  // (enter your email, the key is emailed to you). Submissions are emailed
+  // to that address. The key is safe to ship publicly; it only allows
+  // sending TO your verified email, not reading anything.
+  const WEB3FORMS_ACCESS_KEY = "bc03d913-7e40-4e5b-bd26-0c2069430e83";
+
   const els = {
     startBtn: document.getElementById("startBtn"),
     stopBtn: document.getElementById("stopBtn"),
@@ -18,6 +24,15 @@
     harvestProgressLabel: document.getElementById("harvestProgressLabel"),
     harvestTip: document.getElementById("harvestTip"),
     counterLabel: document.getElementById("counterLabel"),
+    feedbackToggle: document.getElementById("feedbackToggle"),
+    feedbackForm: document.getElementById("feedbackForm"),
+    fbName: document.getElementById("fbName"),
+    fbEmail: document.getElementById("fbEmail"),
+    fbPhone: document.getElementById("fbPhone"),
+    fbMessage: document.getElementById("fbMessage"),
+    fbStatus: document.getElementById("fbStatus"),
+    fbSendBtn: document.getElementById("fbSendBtn"),
+    fbCancelBtn: document.getElementById("fbCancelBtn"),
   };
 
   const state = {
@@ -321,6 +336,71 @@
     } else if (msg.type === "EMAIL_CRAWL_DONE") {
       state.emailCrawl = null;
       render();
+    }
+  });
+
+  // --- Feedback form ---------------------------------------------------------
+  function setFbStatus(message, kind) {
+    els.fbStatus.textContent = message;
+    els.fbStatus.className = `feedback-status${kind ? " " + kind : ""}`;
+    els.fbStatus.classList.toggle("hidden", !message);
+  }
+
+  els.feedbackToggle.addEventListener("click", (e) => {
+    e.preventDefault();
+    els.feedbackForm.classList.toggle("hidden");
+    if (!els.feedbackForm.classList.contains("hidden")) {
+      els.fbName.focus();
+    }
+  });
+
+  els.fbCancelBtn.addEventListener("click", () => {
+    els.feedbackForm.classList.add("hidden");
+    setFbStatus("", null);
+  });
+
+  els.fbSendBtn.addEventListener("click", async () => {
+    const name = els.fbName.value.trim();
+    const email = els.fbEmail.value.trim();
+    const phone = els.fbPhone.value.trim();
+    const message = els.fbMessage.value.trim();
+
+    if (!name || !email || !message) {
+      setFbStatus("Please fill in your name, email, and message.", "error");
+      return;
+    }
+    if (WEB3FORMS_ACCESS_KEY === "YOUR-ACCESS-KEY-HERE") {
+      setFbStatus("Feedback isn't configured yet. Please try again later.", "error");
+      return;
+    }
+
+    els.fbSendBtn.disabled = true;
+    setFbStatus("Sending…", null);
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject: "Leads Harvest — Feedback",
+          from_name: "Leads Harvest Extension",
+          name,
+          email,
+          phone: phone || "(not provided)",
+          message,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setFbStatus("Thanks! Your message has been sent.", "success");
+        els.fbName.value = els.fbEmail.value = els.fbPhone.value = els.fbMessage.value = "";
+      } else {
+        setFbStatus(data.message || "Couldn't send. Please try again.", "error");
+      }
+    } catch {
+      setFbStatus("Network error. Please check your connection and retry.", "error");
+    } finally {
+      els.fbSendBtn.disabled = false;
     }
   });
 
