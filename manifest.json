@@ -1,7 +1,7 @@
  {
     "manifest_version": 3,
     "name": "Leads Harvest — Local Business Leads",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "Extract local business contact data from Google Maps for sales prospecting and outreach.",
     "permissions": ["storage", "scripting", "activeTab", "downloads", "tabs"],
     "host_permissions": ["https://www.google.com/maps/*", "<all_urls>"],
