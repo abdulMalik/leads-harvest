@@ -1,6 +1,6 @@
 # Privacy Policy — Leads Harvest
 
-**Effective date:** 2026-06-13
+**Effective date:** 2026-06-21
 **Contact:** leadsharvestsupport@gmail.com
 
 Leads Harvest is a Chrome extension that helps you collect publicly available business contact information from Google Maps for your own sales prospecting. This policy explains exactly what data the extension touches, where it goes, and what we (the developer) can and cannot see.
@@ -10,12 +10,13 @@ Leads Harvest is a Chrome extension that helps you collect publicly available bu
 - Harvested lead data stays on your device. It is never transmitted to us or to any server we control.
 - During enrichment, the extension fetches pages from the **business websites you've harvested** to read publicly visible email addresses and social media links from those pages. No data is sent to those sites beyond a normal page request.
 - There is no analytics, no telemetry, no tracking pixel, no user account, no advertising SDK, no in-extension payments.
+- The **only** time the extension sends data you provide off your device is when you choose to submit the **feedback form** — and then only the name, email, optional phone, and message you typed (see "Feedback form" below).
 
 ## What the extension processes
 
 ### 1. Lead data (your harvested results)
 
-When you click **Start Harvest** on a Google Maps search results page, the extension reads publicly visible business information from that page and from each business's detail panel:
+When you click **Start Harvesting** on a Google Maps search results page, the extension reads publicly visible business information from that page and from each business's detail panel:
 
 - Business name, category, address
 - Phone number, website
@@ -40,6 +41,17 @@ In both phases, the extension is acting as a normal web client. It does not send
 ### 3. Free quota counter
 
 The extension stores a single integer (`freeLeadsUsed`) in `chrome.storage.sync` so the lifetime free quota survives reinstalls and tracks across devices signed in to the same Chrome account. No business data is included — only the count. We do not receive a copy.
+
+### 4. Feedback form (optional, only if you use it)
+
+The popup includes a **Request a Feature / Report a Bug** form. It is entirely optional. If you fill it in and click Send, the extension transmits **only the data you typed** — your name, email address, an optional phone number, and your message — to a third-party form-delivery service, **Web3Forms** (`api.web3forms.com`), which forwards it to our support inbox by email.
+
+- We use Web3Forms purely to relay your message; it is not used for tracking or advertising.
+- No harvested lead data, browsing history, or other information is attached to the submission.
+- If you never use the form, nothing is ever sent.
+- Web3Forms processes the submission under its own privacy policy: <https://web3forms.com/privacy>.
+
+We use the resulting email solely to read and respond to your feedback.
 
 ## What we do **not** collect
 
@@ -78,7 +90,7 @@ Leads Harvest is a business tool not directed at children under 13 and we do not
 
 ## Changes to this policy
 
-If we change this policy, we will update the **Effective date** above and post the revised policy at the same location. Material changes will also be noted in the extension's Chrome Web Store listing.
+If we change this policy, we will update the **Effective date** above and post the revised policy in the project repository. Material changes will also be noted in the release notes for the affected version.
 
 ## Contact
 
