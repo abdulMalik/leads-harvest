@@ -2,6 +2,9 @@ let harvesting = false;
 let collected = new Map();
 let currentLimit = Infinity;
 let deepHarvest = true;
+let fastMode = false;          // skip email/social enrichment for speed
+let scanDelay = 1200;          // ms between scroll/scan ticks (user-tunable)
+let stableThreshold = 30;      // ticks of no-new-leads before declaring end-of-list
 let observer = null;
 let stableTimer = null;
 let stableTicks = 0;
@@ -706,9 +709,11 @@ function startObserver() {
     if (now === lastCount) stableTicks++;
     else { stableTicks = 0; lastCount = now; }
 
-    // ~36s of no new leads at 1.2s/tick before declaring end-of-list. Generous
-    // so we outlast Google's lazy-load batch pauses on big result sets.
-    if (stableTicks >= 30) {
+    // ~36s of no new leads before declaring end-of-list, regardless of the
+    // user's scan-delay setting (stableThreshold is derived from scanDelay so
+    // a faster cadence doesn't end the harvest prematurely). Generous so we
+    // outlast Google's lazy-load batch pauses on big result sets.
+    if (stableTicks >= stableThreshold) {
       if (observer) { observer.disconnect(); observer = null; }
       if (stableTimer) { clearInterval(stableTimer); stableTimer = null; }
       // First pass populates most leads. Second pass auto-skips successful ones
@@ -716,9 +721,12 @@ function startObserver() {
       // didn't open / didn't swap cleanly on the first attempt.
       await deepHarvestPass();
       if (harvesting) await deepHarvestPass();
-      // Kick off email crawl in the background. Non-blocking — the service
-      // worker handles concurrency and writes back to storage as it goes.
-      chrome.runtime.sendMessage({ type: "CRAWL_EMAILS" }).catch(() => {});
+      // Kick off email/social enrichment unless the user chose Fast mode.
+      // Enrichment (website fetch + hidden-tab render) is the slow phase, so
+      // Fast mode skips it for Maps-only speed.
+      if (!fastMode) {
+        chrome.runtime.sendMessage({ type: "CRAWL_EMAILS" }).catch(() => {});
+      }
       stop({ reason: "end-of-results" });
       return;
     }
@@ -734,7 +742,8 @@ function startObserver() {
   observer.observe(panel, { childList: true, subtree: true });
   // Fallback ticker: when Google Maps stops mutating (end of list reached) the
   // observer goes silent and stableTicks would never advance. Poll on a timer too.
-  stableTimer = setInterval(tick, 1200);
+  // Interval is the user-tunable scan delay.
+  stableTimer = setInterval(tick, scanDelay);
   tick();
   return true;
 }
@@ -747,7 +756,7 @@ function stop({ limitReached = false, reason = "stopped" } = {}) {
   // enrichment text immediately so the user doesn't see a flicker between
   // harvest-done and the first emailCrawl storage write. The storage listener
   // will swap in real progress counts as soon as background.js writes them.
-  if (reason === "end-of-results") {
+  if (reason === "end-of-results" && !fastMode) {
     showBanner("Finding emails & socials…");
   } else {
     hideBanner();
@@ -795,6 +804,11 @@ chrome.runtime.onMessage.addListener((msg) => {
     harvesting = true;
     currentLimit = msg.limit ?? Infinity;
     deepHarvest = msg.deepHarvest !== false;
+    fastMode = msg.fastMode === true;
+    // Clamp scan delay to a sane range; derive the end-of-list threshold from
+    // it so the ~36s no-new-leads window holds regardless of cadence.
+    scanDelay = Math.min(5000, Math.max(500, Number(msg.scanDelay) || 1200));
+    stableThreshold = Math.max(8, Math.round(36000 / scanDelay));
     stableTicks = 0;
     lastCount = 0;
     selectorDegradeStrikes = 0;

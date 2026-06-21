@@ -13,45 +13,144 @@
       </div>
     </header>
 
-    <section class="counter-card">
-      <div id="counterLabel" class="counter-label">Free Quota Used</div>
-      <div class="counter-value">
-        <span id="leadCount">0</span>
-        <span id="leadLimit" class="counter-limit">/ 50</span>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="scraper">Scraper</button>
+      <button class="tab-btn" data-tab="data">Data</button>
+      <button class="tab-btn" data-tab="settings">Settings</button>
+    </nav>
+
+    <!-- ===== Scraper tab ===== -->
+    <section class="tab-pane active" id="tab-scraper">
+      <section class="counter-card">
+        <div id="counterLabel" class="counter-label">Free Quota Used</div>
+        <div class="counter-value">
+          <span id="leadCount">0</span>
+          <span id="leadLimit" class="counter-limit">/ 50</span>
+        </div>
+        <div class="progress">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+      </section>
+
+      <div id="harvestProgress" class="harvest-progress hidden">
+        <div id="harvestProgressBar" class="harvest-progress-bar"></div>
+        <span id="harvestProgressLabel" class="harvest-progress-label">Harvesting…</span>
       </div>
-      <div class="progress">
-        <div id="progressBar" class="progress-bar"></div>
+      <p id="harvestTip" class="tip hidden">Keep this Maps tab in front — Chrome slows background tabs.</p>
+
+      <div id="status" class="status">Open Google Maps and search to begin.</div>
+
+      <div id="warningBanner" class="warning hidden">
+        Selectors may be outdated. Using fallback extractor.
+      </div>
+
+      <div id="limitBanner" class="limit-banner hidden">
+        <strong>Free limit reached.</strong>
+        <p>You've used your lifetime quota of 50 leads.</p>
+      </div>
+
+      <div class="actions">
+        <button id="startBtn" class="btn btn-primary">Start Harvesting</button>
+        <button id="stopBtn" class="btn btn-danger" disabled>Stop</button>
+      </div>
+
+      <div id="fastModeNote" class="mode-note hidden">⚡ Fast mode on — emails &amp; socials are skipped for speed.</div>
+
+      <button id="clearBtn" class="btn btn-ghost">Clear Saved Leads</button>
+    </section>
+
+    <!-- ===== Data tab ===== -->
+    <section class="tab-pane" id="tab-data">
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="statTotal">0</div>
+          <div class="stat-label">Leads</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statEmail">0</div>
+          <div class="stat-label">With email</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statPhone">0</div>
+          <div class="stat-label">With phone</div>
+        </div>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Name</th><th>Phone</th><th>Email</th><th>Website</th></tr>
+          </thead>
+          <tbody id="dataTableBody">
+            <tr><td colspan="4" class="data-empty">No leads yet — run a harvest.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="export-block">
+        <div class="export-title">Export</div>
+        <div class="export-row">
+          <button id="exportBtn" class="btn btn-secondary" disabled>CSV</button>
+          <button id="exportExcelBtn" class="btn btn-secondary" disabled>Excel</button>
+          <button id="exportJsonBtn" class="btn btn-secondary" disabled>JSON</button>
+        </div>
       </div>
     </section>
 
-    <div id="harvestProgress" class="harvest-progress hidden">
-      <div id="harvestProgressBar" class="harvest-progress-bar"></div>
-      <span id="harvestProgressLabel" class="harvest-progress-label">Harvesting…</span>
-    </div>
-    <p id="harvestTip" class="tip hidden">Keep this Maps tab in front — Chrome slows background tabs.</p>
+    <!-- ===== Settings tab ===== -->
+    <section class="tab-pane" id="tab-settings">
+      <div class="settings-section">
+        <div class="settings-title">Speed</div>
+        <label class="setting-row">
+          <span>
+            <strong>Fast mode</strong>
+            <small>Skip email &amp; social lookup (much faster)</small>
+          </span>
+          <input type="checkbox" id="settingFastMode" />
+        </label>
+        <label class="setting-row">
+          <span>
+            <strong>Scan delay</strong>
+            <small>Lower = faster, higher = more reliable</small>
+          </span>
+          <select id="settingScanDelay" class="setting-input">
+            <option value="600">Fast (0.6s)</option>
+            <option value="1200" selected>Balanced (1.2s)</option>
+            <option value="2500">Thorough (2.5s)</option>
+          </select>
+        </label>
+        <label class="setting-row">
+          <span>
+            <strong>Target this run</strong>
+            <small>Stop after this many new leads</small>
+          </span>
+          <input type="number" id="settingTarget" class="setting-input setting-num" min="1" max="50" value="50" />
+        </label>
+      </div>
 
-    <div id="status" class="status">Open Google Maps and search to begin.</div>
+      <div class="settings-section">
+        <div class="settings-title">Export fields</div>
+        <div class="fields-grid">
+          <label><input type="checkbox" data-field="phone" checked /> Phone</label>
+          <label><input type="checkbox" data-field="email" checked /> Email</label>
+          <label><input type="checkbox" data-field="website" checked /> Website</label>
+          <label><input type="checkbox" data-field="address" checked /> Address</label>
+          <label><input type="checkbox" data-field="category" checked /> Category</label>
+          <label><input type="checkbox" data-field="ratings" checked /> Rating/Reviews</label>
+          <label><input type="checkbox" data-field="socials" checked /> Socials</label>
+          <label><input type="checkbox" data-field="hours" checked /> Hours</label>
+        </div>
+        <p class="fields-note">Business name is always included.</p>
+      </div>
 
-    <div id="warningBanner" class="warning hidden">
-      Selectors may be outdated. Using fallback extractor.
-    </div>
+      <div id="settingsStatus" class="settings-status"></div>
+      <button id="saveSettingsBtn" class="btn btn-primary">Save Settings</button>
+    </section>
 
-    <div id="limitBanner" class="limit-banner hidden">
-      <strong>Free limit reached.</strong>
-      <p>You've used your lifetime quota of 50 leads.</p>
-    </div>
-
-    <div class="actions">
-      <button id="startBtn" class="btn btn-primary">Start Harvesting</button>
-      <button id="stopBtn" class="btn btn-danger" disabled>Stop</button>
-    </div>
-
-    <div class="export-row">
-      <button id="exportBtn" class="btn btn-secondary" disabled>Export to CSV</button>
-      <button id="exportJsonBtn" class="btn btn-secondary" disabled>Export to JSON</button>
-    </div>
-
-    <button id="clearBtn" class="btn btn-ghost">Clear Saved Leads</button>
+    <footer class="footer">
+      <a id="feedbackToggle" class="feedback-link" href="#">Request a Feature / Report a Bug</a>
+      <span id="lastUpdated"></span>
+    </footer>
 
     <div id="feedbackForm" class="feedback-form hidden">
       <div class="feedback-title">Request a Feature / Report a Bug</div>
@@ -66,11 +165,7 @@
       </div>
     </div>
 
-    <footer class="footer">
-      <a id="feedbackToggle" class="feedback-link" href="#">Request a Feature / Report a Bug</a>
-      <span id="lastUpdated"></span>
-    </footer>
-
+    <script src="xlsx.full.min.js"></script>
     <script src="popup.js"></script>
   </body>
   </html>

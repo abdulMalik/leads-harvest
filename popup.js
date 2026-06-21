@@ -6,10 +6,23 @@
   // sending TO your verified email, not reading anything.
   const WEB3FORMS_ACCESS_KEY = "bc03d913-7e40-4e5b-bd26-0c2069430e83";
 
+  // User settings, persisted in chrome.storage.sync under "settings".
+  const DEFAULT_SETTINGS = {
+    fastMode: false,   // skip email/social enrichment for speed
+    scanDelay: 1200,   // ms between scroll/scan ticks
+    target: FREE_LIMIT, // stop after this many new leads in a run
+    fields: {
+      phone: true, email: true, website: true, address: true,
+      category: true, ratings: true, socials: true, hours: true,
+    },
+  };
+  let settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+
   const els = {
     startBtn: document.getElementById("startBtn"),
     stopBtn: document.getElementById("stopBtn"),
     exportBtn: document.getElementById("exportBtn"),
+    exportExcelBtn: document.getElementById("exportExcelBtn"),
     exportJsonBtn: document.getElementById("exportJsonBtn"),
     clearBtn: document.getElementById("clearBtn"),
     leadCount: document.getElementById("leadCount"),
@@ -24,6 +37,23 @@
     harvestProgressLabel: document.getElementById("harvestProgressLabel"),
     harvestTip: document.getElementById("harvestTip"),
     counterLabel: document.getElementById("counterLabel"),
+    fastModeNote: document.getElementById("fastModeNote"),
+    // tabs
+    tabBtns: Array.from(document.querySelectorAll(".tab-btn")),
+    tabPanes: Array.from(document.querySelectorAll(".tab-pane")),
+    // data tab
+    statTotal: document.getElementById("statTotal"),
+    statEmail: document.getElementById("statEmail"),
+    statPhone: document.getElementById("statPhone"),
+    dataTableBody: document.getElementById("dataTableBody"),
+    // settings tab
+    settingFastMode: document.getElementById("settingFastMode"),
+    settingScanDelay: document.getElementById("settingScanDelay"),
+    settingTarget: document.getElementById("settingTarget"),
+    fieldChecks: Array.from(document.querySelectorAll("[data-field]")),
+    saveSettingsBtn: document.getElementById("saveSettingsBtn"),
+    settingsStatus: document.getElementById("settingsStatus"),
+    // feedback
     feedbackToggle: document.getElementById("feedbackToggle"),
     feedbackForm: document.getElementById("feedbackForm"),
     fbName: document.getElementById("fbName"),
@@ -99,9 +129,11 @@
     // Otherwise users export an incomplete file and assume the tool is broken.
     const exportDisabled = count === 0 || state.isHarvesting || enriching;
     els.exportBtn.disabled = exportDisabled;
+    els.exportExcelBtn.disabled = exportDisabled;
     els.exportJsonBtn.disabled = exportDisabled;
     els.warningBanner.classList.toggle("hidden", !state.selectorDegraded);
     els.limitBanner.classList.toggle("hidden", !limitReached);
+    els.fastModeNote.classList.toggle("hidden", !settings.fastMode);
 
     els.harvestProgress.classList.toggle("hidden", !state.isHarvesting);
     els.harvestTip.classList.toggle("hidden", !state.isHarvesting);
@@ -133,7 +165,104 @@
     els.lastUpdated.textContent = state.lastUpdated
       ? `Last updated ${new Date(state.lastUpdated).toLocaleTimeString()}`
       : "";
+
+    renderDataTab();
   }
+
+  // --- Data tab: stats + preview table --------------------------------------
+  function renderDataTab() {
+    const leads = state.leads;
+    els.statTotal.textContent = leads.length;
+    els.statEmail.textContent = leads.filter((l) => l.email).length;
+    els.statPhone.textContent = leads.filter((l) => l.phone).length;
+
+    const tbody = els.dataTableBody;
+    tbody.textContent = "";
+    if (!leads.length) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 4;
+      td.className = "data-empty";
+      td.textContent = "No leads yet — run a harvest.";
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+      return;
+    }
+    const cell = (text) => {
+      const td = document.createElement("td");
+      td.textContent = text || "";
+      td.title = text || "";
+      return td;
+    };
+    for (const l of leads) {
+      const tr = document.createElement("tr");
+      tr.appendChild(cell(l.name));
+      tr.appendChild(cell(formatPhone(l.phone)));
+      tr.appendChild(cell(l.email));
+      tr.appendChild(cell(l.website ? shortHost(l.website) : ""));
+      tbody.appendChild(tr);
+    }
+  }
+
+  function shortHost(url) {
+    try { return new URL(url).hostname.replace(/^www\./, ""); }
+    catch { return url; }
+  }
+
+  // --- Tabs ------------------------------------------------------------------
+  els.tabBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.tab;
+      els.tabBtns.forEach((b) => b.classList.toggle("active", b === btn));
+      els.tabPanes.forEach((p) => p.classList.toggle("active", p.id === `tab-${id}`));
+    });
+  });
+
+  // --- Settings --------------------------------------------------------------
+  async function loadSettings() {
+    const { settings: stored } = await chrome.storage.sync.get("settings");
+    settings = {
+      ...DEFAULT_SETTINGS,
+      ...(stored || {}),
+      fields: { ...DEFAULT_SETTINGS.fields, ...((stored && stored.fields) || {}) },
+    };
+    applySettingsToUI();
+  }
+
+  function applySettingsToUI() {
+    els.settingFastMode.checked = !!settings.fastMode;
+    els.settingScanDelay.value = String(settings.scanDelay);
+    els.settingTarget.value = String(settings.target);
+    els.fieldChecks.forEach((cb) => {
+      cb.checked = settings.fields[cb.dataset.field] !== false;
+    });
+  }
+
+  function setSettingsStatus(msg, kind) {
+    els.settingsStatus.textContent = msg || "";
+    els.settingsStatus.className = `settings-status${kind ? " " + kind : ""}`;
+  }
+
+  els.saveSettingsBtn.addEventListener("click", async () => {
+    let target = parseInt(els.settingTarget.value, 10);
+    if (!Number.isFinite(target)) target = FREE_LIMIT;
+    target = Math.min(FREE_LIMIT, Math.max(1, target));
+    els.settingTarget.value = String(target);
+
+    const fields = {};
+    els.fieldChecks.forEach((cb) => { fields[cb.dataset.field] = cb.checked; });
+
+    settings = {
+      fastMode: els.settingFastMode.checked,
+      scanDelay: parseInt(els.settingScanDelay.value, 10) || 1200,
+      target,
+      fields,
+    };
+    await chrome.storage.sync.set({ settings });
+    setSettingsStatus("Settings saved.", "success");
+    setTimeout(() => setSettingsStatus("", null), 2500);
+    render();
+  });
 
   els.startBtn.addEventListener("click", async () => {
     await refreshQuota();
@@ -145,16 +274,23 @@
     }
     // content.js preloads saved leads into its `collected` map and compares
     // `collected.size >= limit`. So the per-harvest limit we pass must be
-    // `existingLoadedCount + freeQuotaRemaining`, otherwise content.js would
-    // stop immediately on a pre-loaded set larger than `remaining`.
+    // `existingLoadedCount + thisRunTarget`, where the run target is the
+    // smaller of the user's target setting and the remaining free quota.
     const remaining = Math.max(0, FREE_LIMIT - state.freeLeadsUsed);
-    const limit = state.leads.length + remaining;
+    const runTarget = Math.min(remaining, settings.target || FREE_LIMIT);
+    const limit = state.leads.length + runTarget;
     state.isHarvesting = true;
     state.limitReached = false;
     state.lastHarvestReason = null;
     await chrome.storage.local.set({ isHarvesting: true, limitReached: false, lastHarvestReason: null });
     render();
-    chrome.tabs.sendMessage(tab.id, { type: "START_HARVEST", limit, deepHarvest: true }).catch(() => {});
+    chrome.tabs.sendMessage(tab.id, {
+      type: "START_HARVEST",
+      limit,
+      deepHarvest: true,
+      fastMode: settings.fastMode,
+      scanDelay: settings.scanDelay,
+    }).catch(() => {});
   });
 
   els.stopBtn.addEventListener("click", async () => {
@@ -234,6 +370,26 @@
     "hours_mon", "hours_tue", "hours_wed", "hours_thu", "hours_fri", "hours_sat", "hours_sun",
   ];
 
+  // Maps each export column to the settings field-group that toggles it.
+  // "name" has no group — it's always included.
+  const HEADER_FIELD = {
+    name: null,
+    phone: "phone", email: "email", website: "website", address: "address",
+    category: "category", rating: "ratings", reviews: "ratings",
+    facebook: "socials", instagram: "socials", twitter: "socials",
+    linkedin: "socials", youtube: "socials", tiktok: "socials",
+    hours_mon: "hours", hours_tue: "hours", hours_wed: "hours", hours_thu: "hours",
+    hours_fri: "hours", hours_sat: "hours", hours_sun: "hours",
+  };
+
+  // Headers the user has enabled via the Settings → Export fields checkboxes.
+  function activeHeaders() {
+    return EXPORT_HEADERS.filter((h) => {
+      const group = HEADER_FIELD[h];
+      return group === null || settings.fields[group] !== false;
+    });
+  }
+
   function buildExportRow(lead) {
     const h = splitHoursDetail(lead.hours_detail);
     return {
@@ -272,23 +428,50 @@
 
   els.exportBtn.addEventListener("click", () => {
     if (state.leads.length === 0) return;
+    const headers = activeHeaders();
     const escape = (v) => {
       const s = (v ?? "").toString().replace(/"/g, '""');
       return /[",\n]/.test(s) ? `"${s}"` : s;
     };
     const rows = state.leads.map(buildExportRow);
     const csv = "﻿" + [
-      EXPORT_HEADERS.join(","),
-      ...rows.map((r) => EXPORT_HEADERS.map((h) => escape(r[h])).join(",")),
+      headers.join(","),
+      ...rows.map((r) => headers.map((h) => escape(r[h])).join(",")),
     ].join("\n");
     triggerDownload(new Blob([csv], { type: "text/csv;charset=utf-8" }), "csv");
   });
 
   els.exportJsonBtn.addEventListener("click", () => {
     if (state.leads.length === 0) return;
-    const rows = state.leads.map(buildExportRow);
+    const headers = activeHeaders();
+    const rows = state.leads.map((lead) => {
+      const full = buildExportRow(lead);
+      const filtered = {};
+      headers.forEach((h) => { filtered[h] = full[h]; });
+      return filtered;
+    });
     const json = JSON.stringify(rows, null, 2);
     triggerDownload(new Blob([json], { type: "application/json;charset=utf-8" }), "json");
+  });
+
+  els.exportExcelBtn.addEventListener("click", () => {
+    if (state.leads.length === 0) return;
+    if (typeof XLSX === "undefined") {
+      els.status.textContent = "Excel library failed to load — try CSV.";
+      els.status.className = "status error";
+      return;
+    }
+    const headers = activeHeaders();
+    const rows = state.leads.map(buildExportRow);
+    const aoa = [headers, ...rows.map((r) => headers.map((h) => r[h] ?? ""))];
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Leads");
+    const out = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    triggerDownload(
+      new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }),
+      "xlsx"
+    );
   });
 
   els.clearBtn.addEventListener("click", async () => {
@@ -311,6 +494,14 @@
       if (changes.freeLeadsUsed) {
         state.freeLeadsUsed = changes.freeLeadsUsed.newValue || 0;
         render();
+      }
+      if (changes.settings) {
+        const v = changes.settings.newValue;
+        if (v) {
+          settings = { ...DEFAULT_SETTINGS, ...v, fields: { ...DEFAULT_SETTINGS.fields, ...(v.fields || {}) } };
+          applySettingsToUI();
+          render();
+        }
       }
       return;
     }
@@ -404,4 +595,6 @@
     }
   });
 
+  // --- Init ------------------------------------------------------------------
+  loadSettings();
   restoreState();

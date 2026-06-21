@@ -14,7 +14,9 @@ A Chrome extension that extracts local-business contact data from Google Maps se
 - **Deep detail extraction** — opens each listing's detail panel to capture phone, website, full per-day hours, address, rating, and review count.
 - **Email + social discovery** — finds emails and social profiles (Facebook, Instagram, X/Twitter, LinkedIn, YouTube, TikTok) that Maps doesn't show, by reading each business's own website.
 - **Smart de-duplication** — sponsored and organic cards for the same business collapse into one row (matched on Google's place ID).
-- **CSV & JSON export** with a sales-priority column order.
+- **CSV, Excel (.xlsx) & JSON export** with a sales-priority column order and selectable fields.
+- **Tabbed popup** — Scraper, Data (live preview table + counts), and Settings.
+- **Fast mode & tunable speed** — skip email/social enrichment and adjust scan delay when you want raw speed.
 - **In-popup feedback form** — Request a Feature / Report a Bug without leaving the extension.
 
 ---
@@ -45,7 +47,10 @@ A Firefox build is produced from the same source via `./build-firefox.sh` (outpu
 5. The extension scrolls the results, opens each listing for details, then runs an email/social enrichment pass in the background. Let it finish (the banner switches to *"Finding emails & socials…"*).
 6. Click **Export to CSV** or **Export to JSON**.
 
-You can stop early with **Stop**, resume later with **Continue Harvesting**, and wipe everything with **Clear Saved Leads**.
+You can stop early with **Stop**, resume later with **Continue Harvesting**, and wipe everything with **Clear Saved Leads**. The **Data** tab shows a live preview and counts; the **Settings** tab controls speed and export fields.
+
+### Fast mode vs. full enrichment
+By default, Leads Harvest enriches each lead by visiting its website to find **emails and social profiles** — this is the slow part. In **Settings → Fast mode**, you can skip enrichment for Maps-only data (name, phone, website, address, hours, ratings) at much higher speed. You can also set a **scan delay** (speed vs. reliability) and a **target count** per run.
 
 ### Free limit
 The free tier captures **50 leads total (lifetime)**. The counter is stored in Chrome sync, so it persists across reinstalls when Chrome sync is enabled.
@@ -54,7 +59,7 @@ The free tier captures **50 leads total (lifetime)**. The counter is stored in C
 
 ## Export columns
 
-CSV and JSON share the same fields, ordered for outreach:
+CSV, Excel, and JSON share the same fields, ordered for outreach (toggle which ones are included in **Settings → Export fields**):
 
 ```
 name, phone, email, website, address,

@@ -261,3 +261,163 @@
     gap: 8px;
   }
   .feedback-actions .btn { flex: 1; }
+
+  /* ===== Tabs ===== */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+  }
+  .tab-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    padding: 7px 0;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+    color: #fff;
+  }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ===== Fast-mode note ===== */
+  .mode-note {
+    font-size: 11px;
+    color: var(--accent-from);
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(124, 92, 246, 0.3);
+    border-radius: 8px;
+    padding: 7px 10px;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  /* ===== Data tab ===== */
+  .stats {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .stat-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+  }
+  .stat-value { font-size: 20px; font-weight: 700; color: var(--text); }
+  .stat-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .data-table-wrap {
+    max-height: 220px;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    margin-bottom: 12px;
+  }
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  .data-table th {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    color: var(--muted);
+    font-weight: 600;
+    text-align: left;
+    padding: 7px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-empty {
+    text-align: center !important;
+    color: var(--muted);
+    padding: 18px 8px !important;
+    max-width: none !important;
+  }
+
+  .export-block { margin-bottom: 4px; }
+  .export-title, .settings-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .export-row { display: flex; gap: 8px; }
+  .export-row .btn { flex: 1; }
+
+  /* ===== Settings tab ===== */
+  .settings-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-row span { display: flex; flex-direction: column; }
+  .setting-row strong { font-size: 13px; font-weight: 600; color: var(--text); }
+  .setting-row small { font-size: 10px; color: var(--muted); }
+  .setting-input {
+    font-size: 12px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+  }
+  .setting-num { width: 64px; text-align: right; }
+  input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-from); cursor: pointer; }
+
+  .fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 10px;
+  }
+  .fields-grid label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .fields-note { font-size: 10px; color: var(--muted); margin-top: 8px; }
+
+  .settings-status { font-size: 11px; min-height: 14px; margin-bottom: 8px; text-align: center; }
+  .settings-status.success { color: var(--success); }
+  .settings-status.error { color: var(--danger); }

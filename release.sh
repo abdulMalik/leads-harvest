@@ -24,6 +24,7 @@ FILES=(
   popup.js
   social_classifier.js
   styles.css
+  xlsx.full.min.js
   leads-harvest-16.png
   leads-harvest-48.png
   leads-harvest-128.png
