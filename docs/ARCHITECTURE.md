@@ -26,11 +26,12 @@ There is no backend. All data lives in `chrome.storage` on the user's device.
 | File | Context | Responsibility |
 |---|---|---|
 | `manifest.json` | — | MV3 manifest: permissions, content-script registration, service worker, icons. |
-| `popup.html` / `styles.css` | Popup | UI markup and styling. |
-| `popup.js` | Popup | Renders state, handles Start/Stop/Clear/Export buttons, builds CSV/JSON, feedback form. |
-| `content.js` | Content script (Maps tab) | Scrolls results, extracts cards, opens detail panels, de-dupes, writes leads to storage. |
+| `popup.html` / `styles.css` | Popup | Tabbed UI (Scraper / Data / Settings) markup and styling. |
+| `popup.js` | Popup | Renders state, tab switching, settings load/save, Start/Stop/Clear, data preview table, CSV/Excel/JSON export, feedback form. |
+| `content.js` | Content script (Maps tab) | Scrolls results, extracts cards, opens detail panels, de-dupes, writes leads to storage. Honors fast mode + scan delay. |
 | `background.js` | Service worker | Email/social enrichment (two phases), free-quota accounting. |
 | `social_classifier.js` | Shared | Classifies/normalizes social URLs. Loaded in all three contexts + Node tests. |
+| `xlsx.full.min.js` | Popup | Bundled SheetJS (Apache-2.0) for Excel export. Verified free of `eval`/`new Function` so it passes the MV3 CSP. |
 | `release.sh` | Dev tool | Builds the Chrome zip, tags, and publishes a GitHub release. |
 | `build-firefox.sh` | Dev tool | Generates a Firefox manifest (event-page background + gecko id) from `manifest.json` and zips a Firefox build. |
 
@@ -44,13 +45,13 @@ This keeps `classifySocial` / `extractSocials` / `extractSocialsFromElement` as 
 
 ## Harvest flow (`content.js`)
 
-1. **START_HARVEST** arms the harvester: clears in-memory state, preloads existing leads from storage into the `collected` Map (keyed by dedup key), records `originalSearchUrl`.
-2. A **MutationObserver** on the results `[role="feed"]` (plus a 1.2s fallback timer) drives `tick()`:
+1. **START_HARVEST** arms the harvester: clears in-memory state, preloads existing leads from storage into the `collected` Map (keyed by dedup key), records `originalSearchUrl`, and reads the run options (`limit`, `fastMode`, `scanDelay`) from the message.
+2. A **MutationObserver** on the results `[role="feed"]` (plus a `scanDelay`-interval fallback timer) drives `tick()`:
    - `extractAll()` reads every visible card via `extractCardBasic()` → `parseCardText()`, de-dupes, and persists.
    - Scrolls the last card into view to trigger Maps' lazy-load.
-   - Tracks `stableTicks`; after ~36s of no new leads it declares **end-of-results**.
+   - Tracks `stableTicks`; after `stableThreshold` ticks of no new leads it declares **end-of-results**. `stableThreshold` is derived from `scanDelay` (`≈36000/scanDelay`) so the ~36s window holds at any cadence.
 3. **Deep harvest** (`deepHarvestPass`, run twice): for each lead missing phone/website, clicks its card, waits for the detail panel to *actually swap to that lead* (`panelMatchesLead` checks the `<h1>`), then extracts phone, website, full hours, address, rating, socials. Runs twice so the second pass retries panels that didn't open cleanly.
-4. Fires **CRAWL_EMAILS** to the service worker, then `stop()`.
+4. Unless **fast mode** is set, fires **CRAWL_EMAILS** to the service worker; then `stop()`. In fast mode, enrichment is skipped entirely for Maps-only speed.
 
 ### Key correctness guards
 - **De-dup key** (`dedupKeyFor`): Google place ID (`!1s0x…:0x…` from the URL) when present, else the URL. Collapses sponsored + organic duplicates.
@@ -86,13 +87,18 @@ Enrichment never erases existing data: `lead.field = found || lead.field || ""`.
 | `lastUpdated` | Timestamp of last lead write. |
 | `lastHarvestReason` | `end-of-results` / `user-stopped` / `interrupted` — drives "Continue Harvesting". |
 
-**`chrome.storage.sync`** (cross-device): `freeLeadsUsed` — single integer, the lifetime quota counter. Incremented in `background.js` on any positive change to `leads.length`.
+**`chrome.storage.sync`** (cross-device):
+
+| Key | Meaning |
+|---|---|
+| `freeLeadsUsed` | Single integer, the lifetime quota counter. Incremented in `background.js` on any positive change to `leads.length`. |
+| `settings` | `{ fastMode, scanDelay, target, fields }` — the Settings tab. `fields` is a map of export-column groups → bool. Defaults applied in `popup.js` (`DEFAULT_SETTINGS`); the popup watches `storage.onChanged` so changes sync live across windows. |
 
 ## Messages
 
 | Message | From → To | Purpose |
 |---|---|---|
-| `START_HARVEST` `{ limit, deepHarvest }` | popup → content | Begin harvesting. `limit` = existing + free-quota remaining. |
+| `START_HARVEST` `{ limit, deepHarvest, fastMode, scanDelay }` | popup → content | Begin harvesting. `limit` = existing + min(remaining quota, target). `fastMode` skips enrichment; `scanDelay` tunes cadence. |
 | `STOP_HARVEST` | popup → content | User stopped. |
 | `CLEAR_LEADS` | popup → content | Drop in-memory `collected` map. |
 | `HARVEST_DONE` `{ reason, limitReached }` | content → popup | Harvest finished/interrupted. |
@@ -100,9 +106,25 @@ Enrichment never erases existing data: `lead.field = found || lead.field || ""`.
 | `EMAIL_PROGRESS` / `EMAIL_CRAWL_DONE` | background → popup | Enrichment progress + completion. |
 | `LEADS_UPDATE` | content → popup | Leads written (popup also watches `storage.onChanged`). |
 
+## Popup UI (`popup.js` / `popup.html`)
+
+The popup is three tabs (`.tab-btn` / `.tab-pane`, switched in JS):
+- **Scraper** — quota counter, Start/Stop, progress, banners, Clear.
+- **Data** — `statTotal`/`statEmail`/`statPhone` counts and a live preview table (`renderDataTab`, built with `textContent` to avoid injection), plus the export buttons.
+- **Settings** — fast mode, scan delay, target count, and export-field checkboxes. `loadSettings`/`applySettingsToUI`/`saveSettingsBtn` persist to `chrome.storage.sync`.
+
+`render()` recomputes everything (including `renderDataTab()`) on each state change.
+
 ## Export (`popup.js`)
 
-`EXPORT_HEADERS` defines the sales-priority column order. `buildExportRow` flattens each lead, `formatPhone` normalizes numbers, `splitHoursDetail` expands the stored hours JSON into `hours_mon…hours_sun`. CSV is UTF-8 with a BOM; both formats download via `chrome.downloads`. The `logo` field is deliberately excluded (URLs expire).
+`EXPORT_HEADERS` defines the sales-priority column order; `HEADER_FIELD` maps each column to a Settings field-group, and `activeHeaders()` filters to the columns the user enabled (name is always included). `buildExportRow` flattens each lead, `formatPhone` normalizes numbers, `splitHoursDetail` expands the stored hours JSON into `hours_mon…hours_sun`.
+
+Three formats, all via `chrome.downloads`:
+- **CSV** — UTF-8 with a BOM.
+- **JSON** — array of objects limited to `activeHeaders()`.
+- **Excel (.xlsx)** — built with SheetJS (`XLSX.utils.aoa_to_sheet` → `XLSX.write({type:"array"})`); guarded with a `typeof XLSX` check.
+
+The `logo` field is deliberately excluded from all exports (URLs expire).
 
 ## Feedback form (`popup.js`)
 

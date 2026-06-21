@@ -40,7 +40,7 @@ In both phases, the extension is acting as a normal web client. It does not send
 
 ### 3. Free quota counter
 
-The extension stores a single integer (`freeLeadsUsed`) in `chrome.storage.sync` so the lifetime free quota survives reinstalls and tracks across devices signed in to the same Chrome account. No business data is included — only the count. We do not receive a copy.
+The extension stores a single integer (`freeLeadsUsed`) in `chrome.storage.sync` so the lifetime free quota survives reinstalls and tracks across devices signed in to the same Chrome account. Your **preferences** (fast mode, scan delay, target count, and which export fields are enabled) are also stored in `chrome.storage.sync` so they follow your Chrome account. Neither contains any business or personal data — only the count and your settings. We do not receive a copy. Choosing an export format (CSV, Excel, or JSON) happens entirely on your device.
 
 ### 4. Feedback form (optional, only if you use it)
 
