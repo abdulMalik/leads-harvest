@@ -7,6 +7,7 @@ dist/
 
 # Private notes (business/payment) — keep out of public repo
 NOTES.md
+AMO_SUBMISSION.md
 
 # OS / editor
 .DS_Store

@@ -59,10 +59,14 @@ m = json.load(open("manifest.json"))
 m["background"] = {"scripts": ["social_classifier.js", "background.js"]}
 
 # Firefox requires an explicit add-on id for signing and updates.
+# data_collection_permissions is required for new AMO listings; "none" is
+# accurate here — the extension has no backend and transmits no user data
+# (everything is processed locally and the user exports the file themselves).
 m["browser_specific_settings"] = {
     "gecko": {
         "id": os.environ["GECKO_ID"],
         "strict_min_version": os.environ["GECKO_MIN_VERSION"],
+        "data_collection_permissions": {"required": ["none"]},
     }
 }
 
